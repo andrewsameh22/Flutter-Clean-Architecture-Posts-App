@@ -43,41 +43,41 @@ class PostsRepositoryImpl implements PostsRepository {
   Future<Either<Failure, Unit>> addPost({required Post post}) async {
     final PostModel postModel =
         PostModel(id: post.id, title: post.title, body: post.body);
-    if (await networkInfo.isDeviceConnected) {
-      try {
-        await remoteDataSource.addPost(
+    return await _getMessage(
+      () {
+        return remoteDataSource.addPost(
             post: postModel); // I am getting entity so converted to PostModel
-        return right(unit);
-      } on ServerException {
-        return left(ServerFailure());
-      }
-    } else {
-      return left(OfflineFailure());
-    }
+      },
+    );
   }
 
   @override
   Future<Either<Failure, Unit>> deletePost({required int id}) async {
-    if (await networkInfo.isDeviceConnected) {
-      try {
-        await remoteDataSource.deletePost(id: id);
-        return right(unit);
-      } on ServerException {
-        return left(ServerFailure());
-      }
-    } else {
-      return left(OfflineFailure());
-    }
+    return await _getMessage(
+      () {
+        return remoteDataSource.deletePost(id: id);
+      },
+    );
   }
 
   @override
   Future<Either<Failure, Unit>> updatePost({required Post post}) async {
     final PostModel postModel =
         PostModel(id: post.id, title: post.title, body: post.body);
+    return await _getMessage(
+      () {
+        return remoteDataSource.updatePost(
+            post: postModel); // I am getting entity so converted to PostModel
+      },
+    );
+  }
+
+//Refactorable Function for add post, update post, and delete post
+  Future<Either<Failure, Unit>> _getMessage(
+      Future<Unit> Function() deleteOrUpdateOrAddPost) async {
     if (await networkInfo.isDeviceConnected) {
       try {
-        await remoteDataSource.updatePost(
-            post: postModel); // I am getting entity so converted to PostModel
+        await deleteOrUpdateOrAddPost();
         return right(unit);
       } on ServerException {
         return left(ServerFailure());
