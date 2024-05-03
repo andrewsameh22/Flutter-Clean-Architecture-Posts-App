@@ -1,5 +1,5 @@
 class ServerException implements Exception {}
 
-class OfflineFailure implements Exception {}
+class OfflineException implements Exception {}
 
-class EmptyCacheFailure implements Exception {}
+class EmptyCacheException implements Exception {}
